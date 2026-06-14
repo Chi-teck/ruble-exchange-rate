@@ -1,4 +1,6 @@
 /.idea/
-/rer.geany
 /rer
-*.o
+/.agents/
+/.claude/
+/.opencode/
+/local/
