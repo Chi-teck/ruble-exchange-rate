@@ -1,4 +1,4 @@
-````# Ruble Exchange Rate
+# Ruble Exchange Rate
 
 A simple command line tool to obtain ruble exchange rates from CBR (The Central
 Bank of the Russian Federation).
@@ -39,4 +39,3 @@ case-insensitive.
 
 ## License
 GNU General Public License, version 2 or later.
-````
