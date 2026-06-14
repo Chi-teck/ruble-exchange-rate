@@ -7,18 +7,15 @@
 #include "decoder.h"
 #include <libxml/parser.h>
 
-#define TOTAL_CURRENCIES 34
-#define MAX_CURRENCIES (TOTAL_CURRENCIES + 10)
-
 // @todo Handle broken XML.
 void parse_rates(char *encoded_xml, rate *rate)
 {
     rate->total = 0;
     rate->size = 0;
-    rate->records = malloc(MAX_CURRENCIES * sizeof(record));
+    rate->records = NULL;
+    size_t capacity = 0;
 
-    static xmlDocPtr document = NULL;
-    document = xmlParseDoc((xmlChar *) encoded_xml);
+    xmlDocPtr document = xmlParseDoc((xmlChar *) encoded_xml);
 
     xmlNode *root_element = NULL;
     root_element = xmlDocGetRootElement(document);
@@ -28,7 +25,9 @@ void parse_rates(char *encoded_xml, rate *rate)
         exit(EXIT_FAILURE);
     }
 
-    strcpy(rate->date, (char *) xmlGetProp(root_element, (const xmlChar *) "Date"));
+    xmlChar *date = xmlGetProp(root_element, (const xmlChar *) "Date");
+    strcpy(rate->date, (char *) date);
+    xmlFree(date);
 
     xmlNode *cur_node = NULL;
     unsigned short i = 0;
@@ -38,9 +37,13 @@ void parse_rates(char *encoded_xml, rate *rate)
             continue;
         }
 
-        if (i > MAX_CURRENCIES) {
-          fprintf(stderr, "Too many currencies in the response.\n");
-          exit(EXIT_FAILURE);
+        if (i >= capacity) {
+            capacity = capacity ? capacity * 2 : 64;
+            rate->records = realloc(rate->records, capacity * sizeof(record));
+            if (rate->records == NULL) {
+                fprintf(stderr, "Out of memory.\n");
+                exit(EXIT_FAILURE);
+            }
         }
 
         xmlNode *valute_node = NULL;
@@ -50,22 +53,27 @@ void parse_rates(char *encoded_xml, rate *rate)
             if (valute_node->type != XML_ELEMENT_NODE) {
                 continue;
             }
+
+            xmlChar *content = xmlNodeGetContent(valute_node);
+
             if (xmlStrcmp(valute_node->name, (const xmlChar *) "CharCode") == 0) {
-                strcpy(record.code, (char *) xmlNodeGetContent(valute_node));
+                strcpy(record.code, (char *) content);
             }
-            if (xmlStrcmp(valute_node->name, (const xmlChar *) "Name") == 0) {
-                strcpy(record.name, (char *) xmlNodeGetContent(valute_node));
+            else if (xmlStrcmp(valute_node->name, (const xmlChar *) "Name") == 0) {
+                strcpy(record.name, (char *) content);
             }
-            if (xmlStrcmp(valute_node->name, (const xmlChar *) "Nominal") == 0) {
-                record.nominal = atoi((char *) xmlNodeGetContent(valute_node));
+            else if (xmlStrcmp(valute_node->name, (const xmlChar *) "Nominal") == 0) {
+                record.nominal = atoi((char *) content);
             }
-            if (xmlStrcmp(valute_node->name, (const xmlChar *) "Value") == 0) {
-                char* value = (char *) xmlNodeGetContent(valute_node);
-                char* comma;
-                comma = strpbrk(value, ",");
-                *comma = '.';
-                record.value = atof(value);
+            else if (xmlStrcmp(valute_node->name, (const xmlChar *) "Value") == 0) {
+                char* comma = strpbrk((char *) content, ",");
+                if (comma != NULL) {
+                    *comma = '.';
+                }
+                record.value = atof((char *) content);
             }
+
+            xmlFree(content);
         }
 
         rate->records[i] = record;
@@ -73,4 +81,6 @@ void parse_rates(char *encoded_xml, rate *rate)
     }
 
     rate->total = i;
+
+    xmlFreeDoc(document);
 }
