@@ -56,7 +56,7 @@ func fetchRates(ctx context.Context, url string) (*ValCurs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("request to CBR failed: %w", err)
 	}
-	defer res.Body.Close()
+	defer func() { _ = res.Body.Close() }()
 	if res.StatusCode != http.StatusOK {
 		return nil, fmt.Errorf("unexpected status code %q of CBR response", res.Status)
 	}
