@@ -46,6 +46,8 @@ func fetchRates(ctx context.Context, url string) (*ValCurs, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to build request: %w", err)
 	}
+	// CBR returns 403 for Go's default User-Agent ("Go-http-client/..."),
+	// so set an explicit one.
 	req.Header.Add("User-Agent", "RER")
 
 	res, err := client.Do(req)
@@ -109,9 +111,8 @@ func main() {
 		if v.CharCode != currency {
 			continue
 		}
-		// The per-unit rate is Value/Nominal. Older documents (e.g. historical
-		// --date queries) may omit VunitRate, but Value and Nominal are always
-		// present.
+		// The per-unit rate is Value/Nominal. Older documents (e.g. historical --date queries)
+		// may omit VunitRate, but Value and Nominal are always present.
 		value, err := parseRate(v.Value)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Could not decode rate.")
