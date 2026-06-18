@@ -17,7 +17,7 @@ const sampleXML = `<?xml version="1.0" encoding="windows-1251"?>` +
 	`</ValCurs>`
 
 func TestFetchRates(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
 		w.Header().Set("Content-Type", "application/xml; charset=windows-1251")
 		_, _ = w.Write([]byte(sampleXML))
 	}))

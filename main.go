@@ -1,3 +1,5 @@
+// Command rer fetches RUB exchange rates from the Central Bank of the Russian
+// Federation and converts amounts between RUB and other currencies.
 package main
 
 import (
