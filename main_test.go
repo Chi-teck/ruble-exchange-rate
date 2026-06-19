@@ -34,18 +34,18 @@ func TestFetchRates(t *testing.T) {
 		t.Fatalf("got %d valutes, want 2", len(curs.Valutes))
 	}
 
-	// AMD has a nominal of 100, so the per-unit rate must be Value/Nominal.
+	// AMD has a nominal of 100; we convert against VunitRate, the per-unit rate.
 	var amd Valute
 	for _, v := range curs.Valutes {
 		if v.CharCode == "AMD" {
 			amd = v
 		}
 	}
-	value, err := parseRate(amd.Value)
+	rate, err := parseRate(amd.VunitRate)
 	if err != nil {
 		t.Fatalf("parseRate: %v", err)
 	}
-	if got, want := value/float64(amd.Nominal), 20.8014/100; got != want {
-		t.Errorf("AMD per-unit = %v, want %v", got, want)
+	if want := 0.208014; rate != want {
+		t.Errorf("AMD VunitRate = %v, want %v", rate, want)
 	}
 }

@@ -22,17 +22,12 @@ const cbrDateFormat = "02/01/2006"
 
 type ValCurs struct {
 	Date    string   `xml:"Date,attr"`
-	Name    string   `xml:"name,attr"`
 	Valutes []Valute `xml:"Valute"`
 }
 
+// Valute holds the fields we use from each <Valute> in the CBR feed.
 type Valute struct {
-	ID        string `xml:"ID,attr"`
-	NumCode   string `xml:"NumCode"`
 	CharCode  string `xml:"CharCode"`
-	Nominal   int    `xml:"Nominal"`
-	Name      string `xml:"Name"`
-	Value     string `xml:"Value"`
 	VunitRate string `xml:"VunitRate"`
 }
 
@@ -110,18 +105,13 @@ func main() {
 		if v.CharCode != *currency {
 			continue
 		}
-		// The per-unit rate is Value/Nominal. Older documents (e.g. historical --date queries)
-		// may omit VunitRate, but Value and Nominal are always present.
-		value, err := parseRate(v.Value)
+		// VunitRate is the rate for a single unit (CBR's own Value/Nominal), which
+		// is what we convert against.
+		rate, err := parseRate(v.VunitRate)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, "Could not decode rate.")
 			os.Exit(1)
 		}
-		if v.Nominal <= 0 {
-			fmt.Fprintln(os.Stderr, "Invalid nominal in CBR response.")
-			os.Exit(1)
-		}
-		rate := value / float64(v.Nominal)
 
 		var result float64
 		if *invert {
