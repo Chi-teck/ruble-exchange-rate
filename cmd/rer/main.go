@@ -5,6 +5,7 @@ package main
 import (
 	"context"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -19,6 +20,10 @@ import (
 const cbrURL = "https://www.cbr.ru/scripts/XML_daily.asp"
 const inputDateFormat = "02.01.2006"
 const cbrDateFormat = "02/01/2006"
+
+// errNoRates is returned when the feed has no currencies for the requested
+// date (CBR's data starts 1 July 1992).
+var errNoRates = errors.New("no rates available for this date")
 
 type valCurs struct {
 	Date    string   `xml:"Date,attr"`
@@ -62,6 +67,9 @@ func fetchRates(ctx context.Context, url string) (*valCurs, error) {
 	if err := decoder.Decode(&curs); err != nil {
 		return nil, fmt.Errorf("failed to decode CBR response: %w", err)
 	}
+	if len(curs.Valutes) == 0 {
+		return nil, errNoRates
+	}
 	return &curs, nil
 }
 
@@ -96,7 +104,11 @@ func main() {
 
 	curs, err := fetchRates(context.Background(), url)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "Could not fetch exchange rates from CBR.")
+		if errors.Is(err, errNoRates) {
+			fmt.Fprintln(os.Stderr, "No exchange rate data available for that date.")
+		} else {
+			fmt.Fprintln(os.Stderr, "Could not fetch exchange rates from CBR.")
+		}
 		os.Exit(1)
 	}
 

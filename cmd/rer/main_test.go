@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -47,5 +48,19 @@ func TestFetchRates(t *testing.T) {
 	}
 	if want := 0.208014; rate != want {
 		t.Errorf("AMD VunitRate = %v, want %v", rate, want)
+	}
+}
+
+// TestFetchRatesNoData checks that an empty document — CBR's response for dates
+// before its data begins (1 July 1992) — yields errNoRates, not an empty result.
+func TestFetchRatesNoData(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.Header().Set("Content-Type", "application/xml; charset=windows-1251")
+		_, _ = w.Write([]byte(`<?xml version="1.0" encoding="windows-1251"?><ValCurs></ValCurs>`))
+	}))
+	defer srv.Close()
+
+	if _, err := fetchRates(context.Background(), srv.URL); !errors.Is(err, errNoRates) {
+		t.Errorf("got %v, want errNoRates", err)
 	}
 }
