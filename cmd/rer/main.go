@@ -124,12 +124,15 @@ func main() {
 		if result < 0.5 {
 			precision = 3
 		}
+		// Format the amount as plain decimal so large values don't switch to
+		// scientific notation (as %g would, e.g. 1e+06).
+		amountFmt := strconv.FormatFloat(amount, 'f', -1, 64)
 		if *raw {
 			fmt.Printf("%.4f\n", result)
 		} else if *invert {
-			fmt.Printf("%g RUB = %.*f %s (%s)\n", amount, precision, result, *currency, curs.Date)
+			fmt.Printf("%s RUB = %.*f %s (%s)\n", amountFmt, precision, result, *currency, curs.Date)
 		} else {
-			fmt.Printf("%g %s = %.*f RUB (%s)\n", amount, *currency, precision, result, curs.Date)
+			fmt.Printf("%s %s = %.*f RUB (%s)\n", amountFmt, *currency, precision, result, curs.Date)
 		}
 		return
 	}
