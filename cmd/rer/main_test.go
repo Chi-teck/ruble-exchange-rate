@@ -65,6 +65,19 @@ func TestFetchRatesNoData(t *testing.T) {
 	}
 }
 
+// TestBuildVersion covers the release path: when version is set via -ldflags
+// (i.e. not "dev"), buildVersion returns it verbatim. The build-info fallback
+// is environment-dependent and left unasserted.
+func TestBuildVersion(t *testing.T) {
+	saved := version
+	defer func() { version = saved }()
+
+	version = "1.2.3"
+	if got := buildVersion(); got != "1.2.3" {
+		t.Errorf("buildVersion() = %q, want %q", got, "1.2.3")
+	}
+}
+
 func TestFormatResult(t *testing.T) {
 	for _, tc := range []struct {
 		in   float64

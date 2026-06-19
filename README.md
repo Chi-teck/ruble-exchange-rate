@@ -14,7 +14,7 @@ You can download the binary from the releases page on GitHub and add it to your 
 Ensure that you have a supported version of Go properly installed and set up.
 
 ```bash
-go install github.com/Chi-teck/ruble-exchange-rate/cmd/rer@latest
+go install github.com/Chi-teck/ruble-exchange-rate/v2/cmd/rer@latest
 ```
 
 ## Usage
@@ -36,7 +36,7 @@ rer -i -a 15000 -c USD
 rer -r -a 100 -c EUR
 ```
 
-Options (each has a short alias), defaulting to `1 USD`:
+Options (each has a short alias). With no flags, `rer` defaults to `1 USD`:
 
 - `-a, --amount` — amount to convert (default `1`).
 - `-c, --currency` — currency code, e.g. `USD` or `EUR` (default `USD`, case-insensitive).

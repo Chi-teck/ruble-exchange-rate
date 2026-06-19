@@ -10,6 +10,7 @@ import (
 	"math"
 	"net/http"
 	"os"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"time"
@@ -21,6 +22,10 @@ import (
 const cbrURL = "https://www.cbr.ru/scripts/XML_daily.asp"
 const inputDateFormat = "02.01.2006"
 const cbrDateFormat = "02/01/2006"
+
+// version is overridden at release time via -ldflags "-X main.version=...".
+// When left as "dev", buildVersion falls back to Go's build info.
+var version = "dev"
 
 // errNoRates is returned when the feed has no currencies for the requested
 // date (CBR's data starts 1 July 1992).
@@ -89,13 +94,53 @@ func formatResult(result float64) string {
 	return strconv.FormatFloat(math.Round(result*pow)/pow, 'f', -1, 64)
 }
 
+// buildVersion returns the version string to display. A release build sets
+// version via -ldflags. Otherwise, we fall back to Go's build info: the module
+// version for `go install ...@vX`, or "dev+<commit>[.dirty]" for a local build
+// from a Git checkout.
+func buildVersion() string {
+	if version != "dev" {
+		return version
+	}
+	info, ok := debug.ReadBuildInfo()
+	if !ok {
+		return version
+	}
+	if v := info.Main.Version; v != "" && v != "(devel)" {
+		return v
+	}
+	var rev, dirty string
+	for _, s := range info.Settings {
+		switch s.Key {
+		case "vcs.revision":
+			if len(s.Value) >= 7 {
+				rev = s.Value[:7]
+			}
+		case "vcs.modified":
+			if s.Value == "true" {
+				dirty = ".dirty"
+			}
+		}
+	}
+	if rev != "" {
+		return version + "+" + rev + dirty
+	}
+	return version
+}
+
 func main() {
 	currency := pflag.StringP("currency", "c", "USD", "currency code to convert, e.g. USD or EUR")
 	amountStr := pflag.StringP("amount", "a", "1", "amount of currency to convert")
 	date := pflag.StringP("date", "d", "", "rate date in DD.MM.YYYY format (default: latest)")
 	raw := pflag.BoolP("raw", "r", false, "print only the numeric result, no decoration")
 	invert := pflag.BoolP("invert", "i", false, "show the inverse rate (1 RUB = X CUR)")
+	showVersion := pflag.Bool("version", false, "print version and exit")
 	pflag.Parse()
+
+	if *showVersion {
+		fmt.Println("rer " + buildVersion())
+		return
+	}
 
 	*currency = strings.ToUpper(*currency)
 

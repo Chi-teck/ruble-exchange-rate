@@ -4,6 +4,8 @@ version: '3'
 vars:
   BINARY: rer
   FEED_URL: 'https://www.cbr.ru/scripts/XML_daily.asp'
+  VERSION:
+    sh: git describe --tags --always --dirty 2>/dev/null || echo dev
 
 tasks:
   default:
@@ -15,7 +17,7 @@ tasks:
   build:
     desc: 'Build the binary'
     cmds:
-      - 'go build -o {{.BINARY}} ./cmd/rer'
+      - 'go build -ldflags "-X main.version={{.VERSION}}" -o {{.BINARY}} ./cmd/rer'
     sources:
       - 'cmd/rer/*.go'
       - 'go.mod'
