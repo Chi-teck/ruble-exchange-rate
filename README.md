@@ -23,9 +23,12 @@ Windows archive is a `.zip`.
 ```
 git clone https://github.com/Chi-teck/ruble-exchange-rate.git
 cd ruble-exchange-rate
-go build      # produces ./rer
+go build ./cmd/rer   # produces ./rer
 ```
-Optionally run `go install` to place the `rer` binary in your `$GOBIN`.
+Or install it directly into your `$GOBIN`:
+```
+go install github.com/Chi-teck/ruble-exchange-rate/cmd/rer@latest
+```
 
 ## Usage
 ```

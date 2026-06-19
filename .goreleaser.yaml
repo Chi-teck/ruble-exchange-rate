@@ -8,6 +8,7 @@ before:
 
 builds:
   - binary: rer
+    main: ./cmd/rer
     env:
       - CGO_ENABLED=0
     goos:

@@ -15,9 +15,9 @@ tasks:
   build:
     desc: 'Build the binary'
     cmds:
-      - 'go build -o {{.BINARY}} .'
+      - 'go build -o {{.BINARY}} ./cmd/rer'
     sources:
-      - '*.go'
+      - 'cmd/rer/*.go'
       - 'go.mod'
       - 'go.sum'
     generates:
@@ -26,7 +26,7 @@ tasks:
   run:
     desc: 'Run the program (e.g. task run -- -a 100 -c EUR)'
     cmds:
-      - 'go run . {{.CLI_ARGS}}'
+      - 'go run ./cmd/rer {{.CLI_ARGS}}'
 
   feed:
     desc: 'Pretty-print the raw CBR XML feed (decoded to UTF-8)'

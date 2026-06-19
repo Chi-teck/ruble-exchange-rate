@@ -1,4 +1,4 @@
-module rer
+module github.com/Chi-teck/ruble-exchange-rate
 
 go 1.26.2
 
