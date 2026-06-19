@@ -1,37 +1,25 @@
 # Ruble Exchange Rate
 
-A simple command line tool to obtain ruble exchange rates from CBR (The Central
+A simple command-line tool to obtain ruble exchange rates from the CBR (Central
 Bank of the Russian Federation).
 
 ## Installation
 
-### Prebuilt binaries
+### Binary
 
-Download an archive for your platform from the
-[Releases page](https://github.com/Chi-teck/ruble-exchange-rate/releases),
-extract the `rer` binary, and place it somewhere on your `$PATH`:
-
-```
-tar -xzf rer_*_linux_amd64.tar.gz
-sudo install rer /usr/local/bin/
-```
-
-Builds are available for Linux, macOS, and Windows (amd64 and arm64); the
-Windows archive is a `.zip`.
+You can download the binary from the releases page on GitHub and add it to your $PATH.
 
 ### From source
-```
-git clone https://github.com/Chi-teck/ruble-exchange-rate.git
-cd ruble-exchange-rate
-go build ./cmd/rer   # produces ./rer
-```
-Or install it directly into your `$GOBIN`:
-```
+
+Ensure that you have a supported version of Go properly installed and set up.
+
+```bash
 go install github.com/Chi-teck/ruble-exchange-rate/cmd/rer@latest
 ```
 
 ## Usage
-```
+
+```bash
 # Latest rate (defaults to 1 USD).
 rer
 
@@ -39,13 +27,13 @@ rer
 rer -a 100 -c EUR
 
 # Rate for a specific date (DD.MM.YYYY).
-rer --date 30.04.2020
+rer -d 30.04.2020
 
-# Inverse: convert 15000 rubles into US dollars.
-rer --invert -a 15000 -c USD
+# Inverse conversion of 15000 rubles into US dollars.
+rer -i -a 15000 -c USD
 
 # Raw numeric output (no decoration), handy for scripts.
-rer --raw -a 100 -c EUR
+rer -r -a 100 -c EUR
 ```
 
 Options (each has a short alias), defaulting to `1 USD`:
@@ -62,4 +50,5 @@ Options (each has a short alias), defaulting to `1 USD`:
 - `2.x` — current Go rewrite.
 
 ## License
+
 GNU General Public License, version 2 or later.
