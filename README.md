@@ -34,15 +34,19 @@ rer -i -a 15000 -c USD
 
 # Raw numeric output (no decoration), handy for scripts.
 rer -r -a 100 -c EUR
+
+# Print the version.
+rer --version
 ```
 
-Options (each has a short alias). With no flags, `rer` defaults to `1 USD`:
+Options (most have a short alias). With no flags, `rer` defaults to `1 USD`:
 
 - `-a, --amount` — amount to convert (default `1`).
 - `-c, --currency` — currency code, e.g. `USD` or `EUR` (default `USD`, case-insensitive).
 - `-d, --date` — rate for a specific date, `DD.MM.YYYY` (default: latest).
 - `-i, --invert` — show the inverse (convert rubles into the currency).
 - `-r, --raw` — print only the number, no decoration.
+- `--version` — print the version and exit.
 
 ## History
 
