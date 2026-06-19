@@ -35,7 +35,7 @@ func TestFetchRates(t *testing.T) {
 	}
 
 	// AMD has a nominal of 100; we convert against VunitRate, the per-unit rate.
-	var amd Valute
+	var amd valute
 	for _, v := range curs.Valutes {
 		if v.CharCode == "AMD" {
 			amd = v

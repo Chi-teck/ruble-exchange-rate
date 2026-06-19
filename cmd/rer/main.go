@@ -20,13 +20,13 @@ const cbrURL = "https://www.cbr.ru/scripts/XML_daily.asp"
 const inputDateFormat = "02.01.2006"
 const cbrDateFormat = "02/01/2006"
 
-type ValCurs struct {
+type valCurs struct {
 	Date    string   `xml:"Date,attr"`
-	Valutes []Valute `xml:"Valute"`
+	Valutes []valute `xml:"Valute"`
 }
 
-// Valute holds the fields we use from each <Valute> in the CBR feed.
-type Valute struct {
+// valute holds the fields we use from each <Valute> in the CBR feed.
+type valute struct {
 	CharCode  string `xml:"CharCode"`
 	VunitRate string `xml:"VunitRate"`
 }
@@ -37,7 +37,7 @@ func parseRate(s string) (float64, error) {
 }
 
 // fetchRates retrieves and decodes the CBR daily rates document at url.
-func fetchRates(ctx context.Context, url string) (*ValCurs, error) {
+func fetchRates(ctx context.Context, url string) (*valCurs, error) {
 	client := &http.Client{Timeout: 30 * time.Second}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
@@ -56,7 +56,7 @@ func fetchRates(ctx context.Context, url string) (*ValCurs, error) {
 		return nil, fmt.Errorf("unexpected status code %q of CBR response", res.Status)
 	}
 
-	var curs ValCurs
+	var curs valCurs
 	decoder := xml.NewDecoder(res.Body)
 	decoder.CharsetReader = charset.NewReaderLabel
 	if err := decoder.Decode(&curs); err != nil {
