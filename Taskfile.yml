@@ -38,6 +38,11 @@ tasks:
     cmds:
       - 'go test -race ./...'
 
+  e2e:
+    desc: 'Manually e2e-test the binary against live CBR data'
+    cmds:
+      - 'scripts/e2e.sh'
+
   lint:
     desc: 'Run golangci-lint'
     cmds:
