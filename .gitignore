@@ -1,5 +1,7 @@
 /.idea/
 /rer
+/dist/
+/.task/
 /.agents/
 /.claude/
 /.opencode/
