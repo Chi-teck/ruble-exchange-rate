@@ -72,24 +72,21 @@ func fetchRates(ctx context.Context, url string) (*ValCurs, error) {
 
 //goland:noinspection GoUnhandledErrorResult
 func main() {
-	date := pflag.String("date", "", "rate date in DD.MM.YYYY format (default: latest)")
-	raw := pflag.Bool("raw", false, "print only the numeric result, no decoration")
-	invert := pflag.Bool("invert", false, "show the inverse rate (1 RUB = X CUR)")
+	currency := pflag.StringP("currency", "c", "USD", "currency code to convert, e.g. USD or EUR")
+	amountStr := pflag.StringP("amount", "a", "1", "amount of currency to convert")
+	date := pflag.StringP("date", "d", "", "rate date in DD.MM.YYYY format (default: latest)")
+	raw := pflag.BoolP("raw", "r", false, "print only the numeric result, no decoration")
+	invert := pflag.BoolP("invert", "i", false, "show the inverse rate (1 RUB = X CUR)")
 	pflag.Parse()
 
-	args := pflag.Args()
-	amount := 1.0
-	currency := "USD"
-	if len(args) > 0 {
-		a, err := strconv.ParseFloat(args[0], 64)
-		if err != nil || a <= 0 {
-			fmt.Fprintln(os.Stderr, "Amount must be a positive number")
-			os.Exit(1)
-		}
-		amount = a
-	}
-	if len(args) > 1 {
-		currency = strings.ToUpper(args[1])
+	*currency = strings.ToUpper(*currency)
+
+	// Parse the amount ourselves (instead of via a pflag float flag) so a bad
+	// value produces a friendly message instead of pflag's strconv error.
+	amount, err := strconv.ParseFloat(*amountStr, 64)
+	if err != nil || amount <= 0 {
+		fmt.Fprintln(os.Stderr, "Amount must be a positive number")
+		os.Exit(1)
 	}
 
 	url := cbrURL
@@ -110,7 +107,7 @@ func main() {
 
 	// Currency given: convert amount into RUB.
 	for _, v := range curs.Valutes {
-		if v.CharCode != currency {
+		if v.CharCode != *currency {
 			continue
 		}
 		// The per-unit rate is Value/Nominal. Older documents (e.g. historical --date queries)
@@ -141,13 +138,13 @@ func main() {
 		if *raw {
 			fmt.Printf("%.4f\n", result)
 		} else if *invert {
-			fmt.Printf("%g RUB = %.*f %s (%s)\n", amount, precision, result, currency, curs.Date)
+			fmt.Printf("%g RUB = %.*f %s (%s)\n", amount, precision, result, *currency, curs.Date)
 		} else {
-			fmt.Printf("%g %s = %.*f RUB (%s)\n", amount, currency, precision, result, curs.Date)
+			fmt.Printf("%g %s = %.*f RUB (%s)\n", amount, *currency, precision, result, curs.Date)
 		}
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, "Unknown currency: %s\n", currency)
+	fmt.Fprintf(os.Stderr, "Unknown currency: %s\n", *currency)
 	os.Exit(1)
 }
