@@ -100,7 +100,6 @@ func main() {
 		os.Exit(1)
 	}
 
-	// Currency given: convert amount into RUB.
 	for _, v := range curs.Valutes {
 		if v.CharCode != *currency {
 			continue
