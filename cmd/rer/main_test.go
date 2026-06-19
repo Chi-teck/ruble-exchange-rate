@@ -64,3 +64,21 @@ func TestFetchRatesNoData(t *testing.T) {
 		t.Errorf("got %v, want errNoRates", err)
 	}
 }
+
+func TestFormatResult(t *testing.T) {
+	for _, tc := range []struct {
+		in   float64
+		want string
+	}{
+		{8503.05, "8503.05"}, // normal magnitude: 2-decimal cents
+		{366, "366.00"},      // whole result keeps cents
+		{0.1995, "0.1995"},   // small: ~4 significant figures
+		{0.0136, "0.0136"},   // inverse rate
+		{0.0004, "0.0004"},   // would have collapsed to 0.000 before
+		{0.00009, "0.00009"}, // plain decimal, never scientific
+	} {
+		if got := formatResult(tc.in); got != tc.want {
+			t.Errorf("formatResult(%v) = %q, want %q", tc.in, got, tc.want)
+		}
+	}
+}

@@ -7,6 +7,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
 	"os"
 	"strconv"
@@ -73,7 +74,21 @@ func fetchRates(ctx context.Context, url string) (*valCurs, error) {
 	return &curs, nil
 }
 
-//goland:noinspection GoUnhandledErrorResult
+// formatResult renders a converted value: 2-decimal cents for normal
+// magnitudes, ~4 significant figures (trailing zeros trimmed) for small
+// results so inverse rates don't collapse to "0.00". Assumes result > 0.
+func formatResult(result float64) string {
+	if result >= 1 {
+		return fmt.Sprintf("%.2f", result)
+	}
+	precision := 3 - int(math.Floor(math.Log10(result)))
+	if precision > 6 {
+		precision = 6
+	}
+	pow := math.Pow(10, float64(precision))
+	return strconv.FormatFloat(math.Round(result*pow)/pow, 'f', -1, 64)
+}
+
 func main() {
 	currency := pflag.StringP("currency", "c", "USD", "currency code to convert, e.g. USD or EUR")
 	amountStr := pflag.StringP("amount", "a", "1", "amount of currency to convert")
@@ -130,21 +145,16 @@ func main() {
 		} else {
 			result = amount * rate
 		}
-		// Show more decimals for small results (e.g. inverse rates) so they
-		// don't round down to a single significant digit.
-		precision := 2
-		if result < 0.5 {
-			precision = 3
-		}
-		// Format the amount as plain decimal so large values don't switch to
+		// Format the amount as plain decimal too, so large values don't switch to
 		// scientific notation (as %g would, e.g. 1e+06).
 		amountFmt := strconv.FormatFloat(amount, 'f', -1, 64)
+		resultFmt := formatResult(result)
 		if *raw {
 			fmt.Printf("%.4f\n", result)
 		} else if *invert {
-			fmt.Printf("%s RUB = %.*f %s (%s)\n", amountFmt, precision, result, *currency, curs.Date)
+			fmt.Printf("%s RUB = %s %s (%s)\n", amountFmt, resultFmt, *currency, curs.Date)
 		} else {
-			fmt.Printf("%s %s = %.*f RUB (%s)\n", amountFmt, *currency, precision, result, curs.Date)
+			fmt.Printf("%s %s = %s RUB (%s)\n", amountFmt, *currency, resultFmt, curs.Date)
 		}
 		return
 	}
