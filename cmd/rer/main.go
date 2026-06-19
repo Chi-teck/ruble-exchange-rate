@@ -80,7 +80,7 @@ func main() {
 	// value produces a friendly message instead of pflag's strconv error.
 	amount, err := strconv.ParseFloat(*amountStr, 64)
 	if err != nil || amount <= 0 {
-		fmt.Fprintln(os.Stderr, "Amount must be a positive number")
+		fmt.Fprintln(os.Stderr, "Amount must be a positive number.")
 		os.Exit(1)
 	}
 
@@ -96,7 +96,7 @@ func main() {
 
 	curs, err := fetchRates(context.Background(), url)
 	if err != nil {
-		fmt.Fprintln(os.Stderr, err)
+		fmt.Fprintln(os.Stderr, "Could not fetch exchange rates from CBR.")
 		os.Exit(1)
 	}
 
@@ -137,6 +137,10 @@ func main() {
 		return
 	}
 
-	fmt.Fprintf(os.Stderr, "Unknown currency: %s\n", *currency)
+	codes := make([]string, len(curs.Valutes))
+	for i, v := range curs.Valutes {
+		codes[i] = v.CharCode
+	}
+	fmt.Fprintf(os.Stderr, "Unknown currency: %s.\nAvailable: %s\n", *currency, strings.Join(codes, " "))
 	os.Exit(1)
 }
