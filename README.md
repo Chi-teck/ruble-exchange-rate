@@ -4,6 +4,22 @@ A simple command line tool to obtain ruble exchange rates from CBR (The Central
 Bank of the Russian Federation).
 
 ## Installation
+
+### Prebuilt binaries
+
+Download an archive for your platform from the
+[Releases page](https://github.com/Chi-teck/ruble-exchange-rate/releases),
+extract the `rer` binary, and place it somewhere on your `$PATH`:
+
+```
+tar -xzf rer_*_linux_amd64.tar.gz
+sudo install rer /usr/local/bin/
+```
+
+Builds are available for Linux, macOS, and Windows (amd64 and arm64); the
+Windows archive is a `.zip`.
+
+### From source
 ```
 git clone https://github.com/Chi-teck/ruble-exchange-rate.git
 cd ruble-exchange-rate
