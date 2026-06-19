@@ -31,7 +31,7 @@ tasks:
   feed:
     desc: 'Pretty-print the raw CBR XML feed (decoded to UTF-8)'
     cmds:
-      - 'curl -s {{.FEED_URL}} | xmllint --format --encode UTF-8 - | bat -p --no-paging'
+      - 'curl -s {{.FEED_URL}} | xmllint --format --encode UTF-8 - | bat --style=-numbers --no-paging'
 
   test:
     desc: 'Run tests with the race detector'
